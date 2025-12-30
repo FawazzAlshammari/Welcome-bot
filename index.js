@@ -9,54 +9,42 @@ const {
 
 const { createCanvas, loadImage } = require("canvas");
 
-// ====== لازم يتعرّف client قبل client.on ======
-const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMembers // مهم عشان حدث دخول عضو
-  ],
-  partials: [Partials.User, Partials.GuildMember]
+const canvas = createCanvas(1280, 400);
+const ctx = canvas.getContext("2d");
+
+// الخلفية
+const bg = await loadImage("./welcome.png");
+ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+
+// إعدادات صورة العضو
+const avatarSize = 180; // حجم الدائرة
+const avatarX = 260;    // مكانها عرضياً
+const avatarY = 200;    // مكانها طولياً (نص الصورة)
+
+// قص دائري
+ctx.save();
+ctx.beginPath();
+ctx.arc(avatarX, avatarY, avatarSize / 2, 0, Math.PI * 2);
+ctx.closePath();
+ctx.clip();
+
+// صورة العضو
+const avatarURL = member.user.displayAvatarURL({
+  extension: "png",
+  size: 512,
 });
+const avatar = await loadImage(avatarURL);
 
-// ====== إعدادات الصورة ======
-const BG_PATH = "./welcome.png"; // نفس اسم ملف الخلفية عندك
-const AVATAR_SIZE = 170;         // حجم دائرة صورة العضو
-const AVATAR_X = 155;            // مكانها (عدّل لو تبي)
-const AVATAR_Y = 105;            // مكانها (عدّل لو تبي)
+// رسم الصورة داخل الدائرة
+ctx.drawImage(
+  avatar,
+  avatarX - avatarSize / 2,
+  avatarY - avatarSize / 2,
+  avatarSize,
+  avatarSize
+);
 
-async function makeWelcomeImage(member) {
-  const bg = await loadImage(BG_PATH);
-
-  const canvas = createCanvas(bg.width, bg.height);
-  const ctx = canvas.getContext("2d");
-
-  // خلفية
-  ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
-
-  // صورة العضو (avatar)
-  const avatarURL = member.user.displayAvatarURL({
-    extension: "png",
-    size: 512
-  });
-  const avatar = await loadImage(avatarURL);
-
-  // قص دائرة
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(AVATAR_X, AVATAR_Y, AVATAR_SIZE / 2, 0, Math.PI * 2);
-  ctx.closePath();
-  ctx.clip();
-
-  // رسم صورة العضو داخل الدائرة
-  ctx.drawImage(
-    avatar,
-    AVATAR_X - AVATAR_SIZE / 2,
-    AVATAR_Y - AVATAR_SIZE / 2,
-    AVATAR_SIZE,
-    AVATAR_SIZE
-  );
-
-  ctx.restore();
+ctx.restore();
 
   return canvas.toBuffer("image/png");
 }
