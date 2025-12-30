@@ -32,8 +32,8 @@ client.on("guildMemberAdd", async (member) => {
 
     // Avatar settings (عدّلها براحتك)
     const avatarSize = 180;
-    const avatarX = 220;
-    const avatarY = 100;
+    const avatarX = 290;
+    const avatarY = 240;
 
     // Clip circle
     ctx.save();
